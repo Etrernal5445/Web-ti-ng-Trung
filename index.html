@@ -116,7 +116,7 @@
         
         <div id="effect-message">Dùng ngón tay/chuột để viết nét chữ!</div>
         
-        <button class="btn-skill" onclick="useHintSkill()">Kỹ Năng: Thấu Thị</button>
+        <button class="btn-skill" onclick="useHintSkill()">Muốn giởi đừng dùng</button>
         <button onclick="nextWord()">Câu tiếp theo</button>
     </div>
 
@@ -187,7 +187,7 @@
             if (index >= writers.length) {
                 const msg = document.getElementById('effect-message');
                 msg.style.color = "#27ae60";
-                msg.innerText = "Hiệu Ứng: Hoàn Mỹ! (+100 Điểm)";
+                msg.innerText = "Chính xác";
                 return;
             }
 
@@ -205,7 +205,7 @@
         }
 
         function useHintSkill() {
-            document.getElementById('effect-message').innerText = "Đã kích hoạt Kỹ Năng: Thấu Thị!";
+            document.getElementById('effect-message').innerText = "Bớt dùng đê";
             document.getElementById('effect-message').style.color = "#9b59b6";
             
             writers.forEach(writer => {
