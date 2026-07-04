@@ -130,18 +130,22 @@
         
         <div id="effect-message">Dùng ngón tay/chuột để viết nét chữ!</div>
         
-        <button class="btn-skill" onclick="useHintSkill()">Kỹ năng: Thấu Thị</button>
+        <button class="btn-skill" onclick="useHintSkill()">Tham khảo</button>
         <button class="btn-next" onclick="nextWord()">Câu tiếp theo</button>
     </div>
 
     <script>
         const vocabList = [
             { vn: "Xin chào", cn: "你好", pinyin: ["nǐ", "hǎo"] },
+            { vn: "Bạn, anh, chị", cn: "你", pinyin: ["nǐ"] },
+            { vn: "Em gái của bạn", cn: "你妹妹", pinyin: ["nǐ", "mèi", "mei"] },
             { vn: "Cảm ơn", cn: "谢谢", pinyin: ["xiè", "xiè"] },
             { vn: "Tạm biệt", cn: "再见", pinyin: ["zài", "jiàn"] },
-            { vn: "Sinh viên", cn: "大学生", pinyin: ["dà", "xué", "shēng"] },
-            { vn: "Giáo viên", cn: "老师", pinyin: ["lǎo", "shī"] },
-            { vn: "Máy tính", cn: "电脑", pinyin: ["diàn", "nǎo"] }
+            { vn: "Khỏe, tốt", cn: "好", pinyin: ["hǎo"] },
+            { vn: "Ông, bà ,ngài", cn: "您", pinyin: ["nín"] },
+            { vn: "Chào ông, bà", cn: "您好", pinyin: ["nín", "hǎo"] },
+            { vn: "Người tốt", cn: "好人", pinyin: ["hǎo", "rén"] },
+            { vn: "Không tốt", cn: "不好", pinyin: ["bù", "hǎo"] }
         ];
 
         let currentIndex = 0;
@@ -215,7 +219,7 @@
         }
 
         function useHintSkill() {
-            document.getElementById('effect-message').innerText = "Đã kích hoạt: Thấu Thị!";
+            document.getElementById('effect-message').innerText = "Muốn giỏi bớt dùng";
             document.getElementById('effect-message').style.color = "#9b59b6";
             
             writers.forEach(writer => {
@@ -224,7 +228,7 @@
             });
 
             setTimeout(() => {
-                document.getElementById('effect-message').innerText = "Hãy vẽ lại nào!";
+                document.getElementById('effect-message').innerText = "Hãy viết lại nào!";
                 document.getElementById('effect-message').style.color = "#bdc3c7";
                 loadGame();
             }, 3500);
