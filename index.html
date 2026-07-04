@@ -220,11 +220,15 @@
         }
 
         function nextWord() {
-            currentIndex = Math.floor(Math.random() * vocabList.length);
+            // Lưu lại vị trí của từ hiện tại
+            let oldIndex = currentIndex;
+            
+            // Bốc ngẫu nhiên liên tục cho đến khi ra một vị trí khác với từ cũ
+            while (currentIndex === oldIndex) {
+                currentIndex = Math.floor(Math.random() * vocabList.length);
+            }
+            
             loadGame();
-        }
-
-        loadGame();
     </script>
 
 </body>
