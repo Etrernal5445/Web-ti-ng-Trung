@@ -1,0 +1,213 @@
+HTML
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luyện Viết Từ Vựng Tiếng Trung</title>
+    <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2c3e50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .game-board {
+            background-color: #ecf0f1;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            text-align: center;
+            width: 90%;
+            max-width: 600px;
+        }
+        h2 {
+            color: #34495e;
+            margin-bottom: 20px;
+        }
+        #viet-word {
+            color: #e74c3c;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        
+        /* Khu vực chứa các chữ cái, cho phép nằm ngang và tự rớt dòng nếu màn hình nhỏ */
+        #canvas-wrapper {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        /* Cấu hình từng ô vuông chữ */
+        .char-box {
+            width: 150px;
+            height: 150px;
+            background-color: #fff;
+            border: 3px dashed #bdc3c7;
+            border-radius: 8px;
+            cursor: crosshair;
+        }
+        
+        /* Hiệu ứng làm mờ ô chưa được viết */
+        .locked {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        #effect-message {
+            font-weight: bold;
+            color: #27ae60;
+            height: 24px;
+            margin-bottom: 15px;
+        }
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .btn-skill {
+            background-color: #9b59b6;
+        }
+        .btn-skill:hover {
+            background-color: #8e44ad;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-board">
+        <h2>Hãy viết từ:<br><span id="viet-word">...</span></h2>
+        
+        <!-- Khung bọc toàn bộ các chữ -->
+        <div id="canvas-wrapper"></div>
+        
+        <div id="effect-message">Dùng ngón tay/chuột để viết nét chữ!</div>
+        
+        <button class="btn-skill" onclick="useHintSkill()">Kỹ năng: Thấu Thị</button>
+        <button onclick="nextWord()">Câu tiếp theo</button>
+    </div>
+
+    <script>
+        // Ngân hàng từ vựng: Giờ đây có thể thêm từ 2, 3 hoặc nhiều chữ
+        const vocabList = [
+            { vn: "Xin chào", cn: "你好" },
+            { vn: "Cảm ơn", cn: "谢谢" },
+            { vn: "Tạm biệt", cn: "再见" },
+            { vn: "Sinh viên", cn: "大学生" }
+        ];
+
+        let currentIndex = 0;
+        let writers = []; // Mảng chứa các bộ điều khiển vẽ cho từng chữ
+
+        function loadGame() {
+            const currentWord = vocabList[currentIndex];
+            document.getElementById('viet-word').innerText = currentWord.vn;
+            const msg = document.getElementById('effect-message');
+            msg.innerText = "Bắt đầu viết chữ đầu tiên...";
+            msg.style.color = "#7f8c8d";
+            
+            const wrapper = document.getElementById('canvas-wrapper');
+            wrapper.innerHTML = ""; 
+            writers = [];
+
+            // Tách từ thành các chữ cái riêng lẻ và tạo ô vẽ cho từng chữ
+            const chars = currentWord.cn.split('');
+            
+            chars.forEach((char, index) => {
+                // Tạo thẻ div cho mỗi chữ
+                let charDiv = document.createElement('div');
+                charDiv.id = `char-${index}`;
+                charDiv.className = 'char-box';
+                
+                // Khóa các chữ phía sau, chỉ mở chữ đầu tiên
+                if (index > 0) {
+                    charDiv.classList.add('locked');
+                }
+                
+                wrapper.appendChild(charDiv);
+
+                // Tạo đối tượng HanziWriter cho thẻ div vừa tạo
+                let writer = HanziWriter.create(`char-${index}`, char, {
+                    width: 150,
+                    height: 150,
+                    padding: 10,
+                    showCharacter: false,
+                    showOutline: false,
+                    strokeAnimationSpeed: 2,
+                    delayBetweenStrokes: 50,
+                });
+                
+                writers.push(writer);
+            });
+
+            // Kích hoạt tính năng vẽ tuần tự
+            startQuizForChar(0);
+        }
+
+        // Hàm xử lý logic vẽ nối tiếp nhau
+        function startQuizForChar(index) {
+            // Nếu đã vẽ xong toàn bộ các chữ
+            if (index >= writers.length) {
+                const msg = document.getElementById('effect-message');
+                msg.style.color = "#27ae60";
+                msg.innerText = "Hiệu ứng: Hoàn Mỹ! (+100 Điểm)";
+                return;
+            }
+
+            // Mở khóa ô chữ hiện tại
+            document.getElementById(`char-${index}`).classList.remove('locked');
+
+            // Bật tính năng chấm điểm vẽ cho ô chữ hiện tại
+            writers[index].quiz({
+                onComplete: function() {
+                    // Khi vẽ xong chữ này, gọi lại hàm này để vẽ chữ tiếp theo
+                    startQuizForChar(index + 1);
+                }
+            });
+        }
+
+        // Kỹ năng: Thấu Thị (Gợi ý tất cả các chữ)
+        function useHintSkill() {
+            document.getElementById('effect-message').innerText = "Đã kích hoạt: Thấu Thị!";
+            document.getElementById('effect-message').style.color = "#9b59b6";
+            
+            // Vẽ mẫu toàn bộ các chữ cùng lúc
+            writers.forEach(writer => {
+                writer.cancelQuiz(); // Dừng quiz tạm thời
+                writer.animateCharacter();
+            });
+
+            // Sau 3 giây, bật lại chế độ quiz từ chữ đầu tiên đang bị dở dang
+            setTimeout(() => {
+                document.getElementById('effect-message').innerText = "Hãy vẽ lại nào!";
+                // Tìm chữ đầu tiên chưa được vẽ xong bằng cách kiểm tra class 'locked' hoặc logic nội bộ
+                // Để đơn giản, ta làm mới lại màn chơi này
+                loadGame();
+            }, 3500);
+        }
+
+        function nextWord() {
+            currentIndex = Math.floor(Math.random() * vocabList.length);
+            loadGame();
+        }
+
+        loadGame();
+    </script>
+
+</body>
+</html>
