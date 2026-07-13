@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luyện Viết Chữ Hán — Flashcard Tương Tác</title>
+    <meta name="description" content="Luyện viết từ vựng tiếng Trung bằng cách vẽ trực tiếp nét chữ Hán, kèm phiên âm pinyin, dành cho người mới bắt đầu.">
+    <meta name="theme-color" content="#1c262b">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>汉</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js" onerror="cdnFailed()"></script>
+    <style>
+        :root {
+            --bg: #1a2327;
+            --board-bg: #1c262b;
+            --text-main: #eceff1;
+            --text-muted: #8fa3ab;
+            --accent-red: #e74c3c;
+            --accent-orange: #f39c12;
+            --accent-green: #2ecc71;
+            --accent-blue: #3498db;
+            --accent-blue-dark: #2980b9;
+            --accent-purple: #9b59b6;
+            --accent-purple-dark: #8e44ad;
+            --track: #2c3a40;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle at 50% 0%, #2c3a40 0%, var(--bg) 55%);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 24px 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a:focus-visible,
+        button:focus-visible {
+            outline: 3px solid var(--accent-blue);
+            outline-offset: 2px;
+        }
+
+        .app-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 22px;
+            max-width: 650px;
+            width: 90%;
+        }
+
+        .app-logo {
+            font-size: 30px;
+            width: 52px;
+            height: 52px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            border-radius: 14px;
+            font-weight: 700;
+        }
+
+        .app-header h1 {
+            font-size: 20px;
+            margin: 0;
+        }
+
+        .app-subtitle {
+            margin: 2px 0 0;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .game-board {
+            background-color: var(--board-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+            text-align: center;
+            width: 90%;
+            max-width: 650px;
+        }
+
+        .progress-wrap {
+            margin-bottom: 22px;
+        }
+
+        .progress-text {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .progress-text strong {
+            color: var(--text-main);
+        }
+
+        .progress-bar {
+            height: 6px;
+            border-radius: 999px;
+            background: var(--track);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            transition: width 0.5s ease;
+        }
+
+        h2 {
+            color: var(--text-main);
+            margin: 0 0 25px;
+            font-size: 19px;
+            font-weight: 600;
+        }
+
+        #viet-word {
+            color: var(--accent-red);
+            font-size: 32px;
+            font-weight: 800;
+            display: block;
+            margin-top: 10px;
+        }
+
+        #canvas-wrapper {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .char-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .char-box {
+            width: clamp(100px, 26vw, 150px);
+            height: clamp(100px, 26vw, 150px);
+            background-color: #f5f6fa;
+            border: 3px dashed #7f8fa6;
+            border-radius: 10px;
+            cursor: crosshair;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
+        }
+
+        .locked {
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        .char-box.mistake {
+            border-color: var(--accent-red);
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.25);
+        }
+
+        .char-box.correct-stroke {
+            border-color: var(--accent-green);
+        }
+
+        .char-box.char-complete {
+            border-style: solid;
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.25);
+        }
+
+        .pinyin-display {
+            margin-top: 12px;
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--accent-orange);
+            min-height: 26px;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .pinyin-show {
+            opacity: 1;
+        }
+
+        #effect-message {
+            font-weight: bold;
+            color: var(--accent-green);
+            height: 24px;
+            margin-bottom: 25px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: color 0.2s ease;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        button {
+            padding: 12px 22px;
+            border: none;
+            border-radius: 999px;
+            color: white;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .btn-skill {
+            background-color: var(--accent-purple);
+        }
+
+        .btn-skill:hover {
+            background-color: var(--accent-purple-dark);
+        }
+
+        .btn-next {
+            background-color: var(--accent-blue);
+        }
+
+        .btn-next:hover {
+            background-color: var(--accent-blue-dark);
+        }
+
+        .app-footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .cdn-error {
+            color: var(--accent-red);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="app-logo" aria-hidden="true">汉</div>
+        <div>
+            <h1>Luyện Viết Chữ Hán</h1>
+            <p class="app-subtitle">Flashcard tương tác cho người mới bắt đầu</p>
+        </div>
+    </header>
+
+    <div class="game-board">
+        <div class="progress-wrap">
+            <div class="progress-text"><strong id="progress-count">0</strong> / <span id="progress-total">0</span> từ đã luyện</div>
+            <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        </div>
+
+        <h2>Hãy viết từ:<br><span id="viet-word">...</span></h2>
+
+        <div id="canvas-wrapper"></div>
+
+        <div id="effect-message">Dùng ngón tay/chuột để viết nét chữ!</div>
+
+        <div class="actions">
+            <button class="btn-skill" onclick="useHintSkill()"><span aria-hidden="true">💡</span> Tham khảo</button>
+            <button class="btn-next" onclick="nextWord()">Câu tiếp theo <span aria-hidden="true">→</span></button>
+        </div>
+    </div>
+
+    <p class="app-footer">Được xây dựng với HanziWriter.js</p>
+
+    <script>
+        const vocabList = [
+            { vn: "Xin chào", cn: "你好", pinyin: ["nǐ", "hǎo"] },
+            { vn: "Bạn, anh, chị", cn: "你", pinyin: ["nǐ"] },
+            { vn: "Em gái của bạn", cn: "你妹妹", pinyin: ["nǐ", "mèi", "mei"] },
+            { vn: "Cảm ơn", cn: "谢谢", pinyin: ["xiè", "xiè"] },
+            { vn: "Tạm biệt", cn: "再见", pinyin: ["zài", "jiàn"] },
+            { vn: "Khỏe, tốt", cn: "好", pinyin: ["hǎo"] },
+            { vn: "Không, đừng", cn: "不", pinyin: ["bù"] },
+            { vn: "Không được", cn: "不行", pinyin: ["bù", "xíng"] },
+            { vn: "Không phải", cn: "不是", pinyin: ["bù", "shì"] },
+            { vn: "Ông, bà ,ngài", cn: "您", pinyin: ["nín"] },
+            { vn: "Chào ông, bà", cn: "您好", pinyin: ["nín", "hǎo"] },
+            { vn: "Người tốt", cn: "好人", pinyin: ["hǎo", "rén"] },
+            { vn: "Các bạn", cn: "你们", pinyin: ["nǐ", "men"] },
+            { vn: "Hai đứa này", cn: "你们两个", pinyin: ["nǐ", "men", "liǎng", "gè"] },
+            { vn: "Xin lỗi", cn: "对不起", pinyin: ["duì", "bù", "qǐ"] },
+            { vn: "Không có gì", cn: "没关系", pinyin: ["méi", "guān", "xi"] },
+            { vn: "Đừng khách sáo", cn: "不客气", pinyin: ["bù", "kè", "qì"] },
+            { vn: "Thầy cô giáo", cn: "老师", pinyin: ["lǎo", "shī"] },
+            { vn: "Không tốt", cn: "不好", pinyin: ["bù", "hǎo"] }
+        ];
+
+        let currentIndex = 0;
+        let writers = [];
+        let currentWordData = {};
+        let wordsCompleted = 0;
+
+        function cdnFailed() {
+            document.getElementById('canvas-wrapper').innerHTML =
+                '<p class="cdn-error">Không thể tải thư viện viết chữ (HanziWriter). Vui lòng kiểm tra kết nối mạng và tải lại trang.</p>';
+            document.querySelector('.actions').style.display = 'none';
+        }
+
+        function loadGame() {
+            currentWordData = vocabList[currentIndex];
+            document.getElementById('viet-word').innerText = currentWordData.vn;
+            document.getElementById('progress-total').innerText = vocabList.length;
+
+            const msg = document.getElementById('effect-message');
+            msg.innerText = "Bắt đầu viết chữ đầu tiên...";
+            msg.style.color = "var(--text-muted)";
+
+            const wrapper = document.getElementById('canvas-wrapper');
+            wrapper.innerHTML = "";
+            writers = [];
+
+            const chars = currentWordData.cn.split('');
+
+            chars.forEach((char, index) => {
+                let colDiv = document.createElement('div');
+                colDiv.className = 'char-column';
+
+                let charDiv = document.createElement('div');
+                charDiv.id = `char-${index}`;
+                charDiv.className = 'char-box';
+                if (index > 0) charDiv.classList.add('locked');
+
+                let pinyinDiv = document.createElement('div');
+                pinyinDiv.id = `pinyin-${index}`;
+                pinyinDiv.className = 'pinyin-display';
+                pinyinDiv.innerText = currentWordData.pinyin[index];
+
+                colDiv.appendChild(charDiv);
+                colDiv.appendChild(pinyinDiv);
+                wrapper.appendChild(colDiv);
+
+                let writer = HanziWriter.create(`char-${index}`, char, {
+                    width: 150,
+                    height: 150,
+                    padding: 10,
+                    showCharacter: false,
+                    showOutline: false,
+                    strokeAnimationSpeed: 2,
+                    delayBetweenStrokes: 50,
+                });
+
+                writers.push(writer);
+            });
+
+            startQuizForChar(0);
+        }
+
+        function startQuizForChar(index) {
+            if (index >= writers.length) {
+                const msg = document.getElementById('effect-message');
+                msg.style.color = "var(--accent-green)";
+                msg.innerText = "✓ Chính xác";
+
+                wordsCompleted++;
+                document.getElementById('progress-count').innerText = wordsCompleted;
+                const pct = ((wordsCompleted % vocabList.length) / vocabList.length) * 100;
+                document.getElementById('progress-fill').style.width = (pct === 0 ? 100 : pct) + '%';
+                return;
+            }
+
+            const box = document.getElementById(`char-${index}`);
+            box.classList.remove('locked');
+
+            writers[index].quiz({
+                onCorrectStroke: function() {
+                    box.classList.add('correct-stroke');
+                    setTimeout(() => box.classList.remove('correct-stroke'), 200);
+                },
+                onMistake: function() {
+                    box.classList.add('mistake');
+                    setTimeout(() => box.classList.remove('mistake'), 350);
+                },
+                onComplete: function() {
+                    box.classList.add('char-complete');
+                    document.getElementById(`pinyin-${index}`).classList.add('pinyin-show');
+                    startQuizForChar(index + 1);
+                }
+            });
+        }
+
+        function useHintSkill() {
+            document.getElementById('effect-message').innerText = "Muốn giỏi bớt dùng";
+            document.getElementById('effect-message').style.color = "var(--accent-purple)";
+
+            writers.forEach(writer => {
+                writer.cancelQuiz();
+                writer.animateCharacter();
+            });
+
+            setTimeout(() => {
+                document.getElementById('effect-message').innerText = "Hãy viết lại nào!";
+                document.getElementById('effect-message').style.color = "var(--text-muted)";
+                loadGame();
+            }, 3500);
+        }
+
+        function nextWord() {
+            let oldIndex = currentIndex;
+            while (currentIndex === oldIndex) {
+                currentIndex = Math.floor(Math.random() * vocabList.length);
+            }
+            loadGame();
+        }
+
+        loadGame();
+    </script>
+</body>
+</html>
