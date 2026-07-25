@@ -267,6 +267,111 @@
             font-size: 14px;
             line-height: 1.5;
         }
+
+        .mode-switch {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 18px;
+            background: var(--track);
+            padding: 4px;
+            border-radius: 999px;
+            width: 90%;
+            max-width: 650px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            background: transparent;
+            box-shadow: none;
+            color: var(--text-muted);
+            padding: 10px 14px;
+            font-size: 14px;
+            justify-content: center;
+        }
+
+        .mode-btn:hover {
+            transform: none;
+            box-shadow: none;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            color: white;
+        }
+
+        #quiz-question {
+            color: var(--accent-red);
+            font-size: 26px;
+            font-weight: 800;
+            display: block;
+            margin-top: 10px;
+        }
+
+        .quiz-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+
+        @media (max-width: 420px) {
+            .quiz-options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .quiz-option {
+            background-color: #f5f6fa;
+            border: 3px solid transparent;
+            border-radius: 12px;
+            padding: 16px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            color: #263238;
+            box-shadow: none;
+            font-weight: normal;
+        }
+
+        .quiz-option:hover:not(:disabled) {
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .quiz-option:disabled {
+            cursor: default;
+        }
+
+        .quiz-hanzi {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .quiz-pinyin {
+            font-size: 14px;
+            color: var(--accent-orange);
+            font-weight: 700;
+        }
+
+        .quiz-option.correct {
+            border-color: var(--accent-green);
+            background-color: #eafaf1;
+        }
+
+        .quiz-option.wrong {
+            border-color: var(--accent-red);
+            background-color: #fdecea;
+        }
+
+        #quiz-message {
+            font-weight: bold;
+            min-height: 24px;
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
     </style>
 </head>
 <body>
@@ -279,21 +384,46 @@
         </div>
     </header>
 
-    <div class="game-board">
-        <div class="progress-wrap">
-            <div class="progress-text"><strong id="progress-count">0</strong> / <span id="progress-total">0</span> từ đã luyện</div>
-            <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="mode-switch">
+        <button class="mode-btn active" data-mode="write" onclick="switchMode('write')">✍️ Viết chữ</button>
+        <button class="mode-btn" data-mode="quiz" onclick="switchMode('quiz')">🎯 Trắc nghiệm</button>
+    </div>
+
+    <div id="write-mode">
+        <div class="game-board">
+            <div class="progress-wrap">
+                <div class="progress-text"><strong id="progress-count">0</strong> / <span id="progress-total">0</span> từ đã luyện</div>
+                <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+            </div>
+
+            <h2>Hãy viết từ:<br><span id="viet-word">...</span></h2>
+
+            <div id="canvas-wrapper"></div>
+
+            <div id="effect-message">Dùng ngón tay/chuột để viết nét chữ!</div>
+
+            <div class="actions">
+                <button class="btn-skill" onclick="useHintSkill()"><span aria-hidden="true">💡</span> Tham khảo</button>
+                <button class="btn-next" onclick="nextWord()">Câu tiếp theo <span aria-hidden="true">→</span></button>
+            </div>
         </div>
+    </div>
 
-        <h2>Hãy viết từ:<br><span id="viet-word">...</span></h2>
+    <div id="quiz-mode" style="display:none">
+        <div class="game-board">
+            <div class="progress-wrap">
+                <div class="progress-text">Điểm: <strong id="quiz-score">0</strong> / <span id="quiz-total">0</span></div>
+            </div>
 
-        <div id="canvas-wrapper"></div>
+            <h2>Từ nào có nghĩa là:<br><span id="quiz-question">...</span></h2>
 
-        <div id="effect-message">Dùng ngón tay/chuột để viết nét chữ!</div>
+            <div class="quiz-options" id="quiz-options"></div>
 
-        <div class="actions">
-            <button class="btn-skill" onclick="useHintSkill()"><span aria-hidden="true">💡</span> Tham khảo</button>
-            <button class="btn-next" onclick="nextWord()">Câu tiếp theo <span aria-hidden="true">→</span></button>
+            <div id="quiz-message"></div>
+
+            <div class="actions">
+                <button class="btn-next" onclick="nextQuizQuestion()">Câu tiếp theo <span aria-hidden="true">→</span></button>
+            </div>
         </div>
     </div>
 
@@ -509,6 +639,84 @@
                 currentIndex = Math.floor(Math.random() * vocabList.length);
             }
             loadGame();
+        }
+
+        let quizScore = 0;
+        let quizTotal = 0;
+        let quizAnswered = false;
+        let quizInitialized = false;
+
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function switchMode(mode) {
+            document.getElementById('write-mode').style.display = mode === 'write' ? 'block' : 'none';
+            document.getElementById('quiz-mode').style.display = mode === 'quiz' ? 'block' : 'none';
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+            if (mode === 'quiz' && !quizInitialized) {
+                quizInitialized = true;
+                loadQuizQuestion();
+            }
+        }
+
+        function loadQuizQuestion() {
+            quizAnswered = false;
+            document.getElementById('quiz-message').innerText = '';
+
+            const correctWord = vocabList[Math.floor(Math.random() * vocabList.length)];
+            const wrongPool = shuffleArray(vocabList.filter(w => w.cn !== correctWord.cn));
+            const options = shuffleArray([correctWord, ...wrongPool.slice(0, 3)]);
+
+            document.getElementById('quiz-question').innerText = correctWord.vn;
+
+            const wrapper = document.getElementById('quiz-options');
+            wrapper.innerHTML = '';
+
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option';
+                btn.dataset.cn = opt.cn;
+                btn.innerHTML = `<span class="quiz-hanzi">${opt.cn}</span><span class="quiz-pinyin">${opt.pinyin.join(' ')}</span>`;
+                btn.onclick = () => selectQuizAnswer(opt, correctWord, btn);
+                wrapper.appendChild(btn);
+            });
+        }
+
+        function selectQuizAnswer(selected, correctWord, btnEl) {
+            if (quizAnswered) return;
+            quizAnswered = true;
+            quizTotal++;
+
+            const allButtons = document.querySelectorAll('#quiz-options .quiz-option');
+            allButtons.forEach(b => {
+                b.disabled = true;
+                if (b.dataset.cn === correctWord.cn) b.classList.add('correct');
+            });
+
+            const msg = document.getElementById('quiz-message');
+            if (selected.cn === correctWord.cn) {
+                quizScore++;
+                msg.innerText = '✓ Chính xác!';
+                msg.style.color = 'var(--accent-green)';
+            } else {
+                btnEl.classList.add('wrong');
+                msg.innerText = `✗ Sai rồi! Đáp án đúng: ${correctWord.cn} (${correctWord.pinyin.join(' ')})`;
+                msg.style.color = 'var(--accent-red)';
+            }
+
+            document.getElementById('quiz-score').innerText = quizScore;
+            document.getElementById('quiz-total').innerText = quizTotal;
+        }
+
+        function nextQuizQuestion() {
+            loadQuizQuestion();
         }
 
         loadGame();
