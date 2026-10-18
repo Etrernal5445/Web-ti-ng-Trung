@@ -115,12 +115,14 @@ function taiTuViet() {
   wrapper.innerHTML = "";
   butVietLT = [];
   const chu = [...t.hanzi];
+  const kichThuoc = tinhKichThuocO(chu.length);
   chu.forEach((c, i) => {
     const cot = document.createElement("div");
     cot.className = "char-column";
     const o = document.createElement("div");
     o.id = `char-${i}`;
     o.className = "char-box" + (i > 0 ? " locked" : "");
+    o.style.width = o.style.height = kichThuoc + "px";
     const py = document.createElement("div");
     py.id = `pinyin-${i}`;
     py.className = "pinyin-display";
@@ -129,13 +131,40 @@ function taiTuViet() {
     cot.appendChild(py);
     wrapper.appendChild(cot);
     butVietLT.push(HanziWriter.create(o.id, c, {
-      width: 150, height: 150, padding: 10,
+      // khung vẽ đúng bằng phần bên trong ô (trừ viền 3px mỗi bên) để chữ luôn nằm giữa
+      width: kichThuoc - 6, height: kichThuoc - 6, padding: Math.round(kichThuoc * 0.06),
       showCharacter: false, showOutline: false,
       strokeAnimationSpeed: 2, delayBetweenStrokes: 50
     }));
   });
   vietChu(0);
 }
+
+/**
+ * Tính cỡ ô viết theo bề rộng màn hình: 1 chữ thì ô to nhất có thể,
+ * nhiều chữ thì chia hàng (điện thoại tối đa 2 ô/hàng).
+ */
+function tinhKichThuocO(soChu) {
+  const rong = document.getElementById("canvas-wrapper").clientWidth || 300;
+  const khoangCach = 15;
+  const toiDaMoiHang = rong < 520 ? 1 : 4;   // điện thoại: mỗi chữ một ô to, viết lần lượt từ trên xuống
+  const soCot = Math.min(soChu, toiDaMoiHang);
+  const vua = Math.floor((rong - khoangCach * (soCot - 1)) / soCot);
+  const tran = soChu === 1 || soCot === 1 ? 340 : 280;
+  return Math.max(120, Math.min(vua, tran));
+}
+
+// Xoay màn hình / đổi cỡ cửa sổ: vẽ lại ô viết cho vừa
+let _rongCu = 0, _henDoiCo;
+window.addEventListener("resize", () => {
+  clearTimeout(_henDoiCo);
+  _henDoiCo = setTimeout(() => {
+    const w = document.getElementById("canvas-wrapper").clientWidth;
+    if (!tuDangViet || document.getElementById("write-mode").hidden || Math.abs(w - _rongCu) < 20) return;
+    _rongCu = w;
+    taiTuViet();
+  }, 250);
+});
 
 function vietChu(i) {
   if (i >= butVietLT.length) {
@@ -152,6 +181,10 @@ function vietChu(i) {
   }
   const o = document.getElementById(`char-${i}`);
   o.classList.remove("locked");
+  // ô tiếp theo nằm bên dưới (điện thoại) thì cuộn tới cho dễ viết
+  if (i > 0 && o.getBoundingClientRect().top > document.getElementById(`char-${i - 1}`).getBoundingClientRect().bottom - 5) {
+    o.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
   butVietLT[i].quiz({
     onCorrectStroke() { o.classList.add("correct-stroke"); setTimeout(() => o.classList.remove("correct-stroke"), 200); },
     onMistake() { o.classList.add("mistake"); setTimeout(() => o.classList.remove("mistake"), 350); },
