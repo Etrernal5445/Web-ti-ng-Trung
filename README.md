@@ -15,7 +15,7 @@ js/ngu-phap.js        Ngữ pháp
 js/luyen-tap.js       Luyện tập: Viết chữ, Trắc nghiệm, lọc theo bài
 js/luyen-nghe.js      Luyện nghe: Nghe chọn từ, Thanh điệu, Chép chính tả
 js/app.js             điều hướng giữa các chế độ
-data/tu-vung/         hsk1.js, hsk2.js, mo-rong.js
+data/tu-vung/         hsk1.js, hsk2.js, mo-rong.js, cong-viec.js
 data/ngu-phap/        hsk1.js, hsk2.js
 tools/kiem-tra.js     kiểm tra dữ liệu (tùy chọn, cần Node.js)
 ```

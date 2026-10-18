@@ -929,3 +929,6 @@ kbd {
 }
 .char-box svg { display: block; }
 .pinyin-display { font-size: 24px; }
+:root { --cong-viec: #d35400; }
+.chip-cong-viec.active { background: var(--cong-viec); border-color: var(--cong-viec); }
+.badge-cong-viec { background: var(--cong-viec); }
