@@ -912,3 +912,20 @@ kbd {
     border-bottom-width: 2px; border-radius: 4px; padding: 0 5px;
 }
 @media (hover: none) { .kbd-hint { display: none; } }
+
+/* ===== Ô luyện viết: cỡ do JS tính theo màn hình, có lưới 米 hỗ trợ căn chữ ===== */
+#canvas-wrapper { width: 100%; }
+.char-box {
+    position: relative;
+    touch-action: none;            /* viết trên điện thoại không làm cuộn trang */
+    -webkit-user-select: none;
+    user-select: none;
+    background-color: #f5f6fa;
+    background-image:
+        linear-gradient(to right, transparent calc(50% - 0.5px), #d5dbe3 calc(50% - 0.5px), #d5dbe3 calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+        linear-gradient(to bottom, transparent calc(50% - 0.5px), #d5dbe3 calc(50% - 0.5px), #d5dbe3 calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+        linear-gradient(to top right, transparent calc(50% - 0.5px), #e6eaef calc(50% - 0.5px), #e6eaef calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+        linear-gradient(to bottom right, transparent calc(50% - 0.5px), #e6eaef calc(50% - 0.5px), #e6eaef calc(50% + 0.5px), transparent calc(50% + 0.5px));
+}
+.char-box svg { display: block; }
+.pinyin-display { font-size: 24px; }
