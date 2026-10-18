@@ -12,7 +12,8 @@ js/kho.js             kho dữ liệu chung, tìm kiếm
 js/tien-ich.js        hàm dùng chung (phát âm, chip lọc…)
 js/tu-vung.js         Kho từ vựng + cửa sổ chi tiết từ
 js/ngu-phap.js        Ngữ pháp
-js/luyen-tap.js       Luyện tập: Viết chữ, Trắc nghiệm
+js/luyen-tap.js       Luyện tập: Viết chữ, Trắc nghiệm, lọc theo bài
+js/luyen-nghe.js      Luyện nghe: Nghe chọn từ, Thanh điệu, Chép chính tả
 js/app.js             điều hướng giữa các chế độ
 data/tu-vung/         hsk1.js, hsk2.js, mo-rong.js
 data/ngu-phap/        hsk1.js, hsk2.js
@@ -51,6 +52,6 @@ Khi mở trang, các lỗi dữ liệu cũng được in ra Console (F12).
 ## Ghi chú về dữ liệu
 
 - HSK1: theo Giáo trình chuẩn HSK1, chia theo 15 bài.
-- HSK2: theo danh sách từ HSK2 chính thức, chưa chia theo bài (bỏ các từ đã có ở HSK1). Ngữ pháp HSK2 được tóm tắt theo 15 bài của Giáo trình chuẩn HSK2, nên đối chiếu lại với sách.
-- Phát âm dùng giọng đọc có sẵn của trình duyệt (tốt nhất trên Edge/Chrome).
+- HSK2: chia theo 15 bài của Giáo trình chuẩn HSK2 (bỏ từ bổ sung có dấu * và từ đã có ở HSK1). Ba từ HSK2 chính thức không có trong sách (累, 卖, 回答) để ở cuối file, không gán bài.
+- Phát âm và Luyện nghe dùng giọng đọc có sẵn của trình duyệt. Edge có sẵn giọng Trung trực tuyến; trên Windows có thể cài thêm giọng Tiếng Trung (giản thể) trong Cài đặt → Thời gian & Ngôn ngữ → Giọng nói.
 - Thứ tự nét và luyện viết dùng [HanziWriter](https://hanziwriter.org), cần kết nối mạng.

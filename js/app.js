@@ -12,7 +12,7 @@ function chuyenCheDo() {
   document.querySelectorAll("#top-mode-switch .mode-btn").forEach(a =>
     a.classList.toggle("active", a.dataset.mode === cheDo));
 
-  if (cheDo === "luyen-tap") batDauViet();
+  if (cheDo === "luyen-tap") chonCheDo(ltTrangThai.cheDo);
   luuCaiDat("che-do", cheDo);
 }
 
