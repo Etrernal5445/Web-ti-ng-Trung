@@ -14,7 +14,8 @@ const KHO = {
 const CAP_DO = {
   "hsk1": "HSK1",
   "hsk2": "HSK2",
-  "mo-rong": "Mở rộng"
+  "mo-rong": "Mở rộng",
+  "cong-viec": "Công việc"
 };
 
 function tenCapDo(capDo) {
