@@ -2,18 +2,25 @@
 
 const ltTrangThai = {
   capDo: docCaiDat("lt-cap-do", "hsk1"),
-  cheDo: "write",
+  bai: "",
+  cheDo: docCaiDat("lt-che-do", "write"),
   huong: "viet-han",   // viet-han: nghĩa → chữ Hán; han-viet: chữ Hán → nghĩa
   daKhoiTaoQuiz: false
 };
 
 function nguonLuyenTap() {
-  return KHO.tuVung.filter(t => ltTrangThai.capDo === "tat-ca" || t.capDo === ltTrangThai.capDo);
+  return KHO.tuVung.filter(t =>
+    (ltTrangThai.capDo === "tat-ca" || t.capDo === ltTrangThai.capDo) &&
+    (!ltTrangThai.bai || String(t.bai) === String(ltTrangThai.bai)));
 }
 
 function khoiTaoLuyenTap() {
   if (ltTrangThai.capDo !== "tat-ca" && !danhSachCapDo().includes(ltTrangThai.capDo)) ltTrangThai.capDo = "tat-ca";
   veChipLuyenTap();
+  document.getElementById("lt-bai").addEventListener("change", e => {
+    ltTrangThai.bai = e.target.value;
+    doiPhamViLuyenTap();
+  });
 
   document.querySelectorAll("#sub-mode-switch .mode-btn").forEach(nut => {
     nut.addEventListener("click", () => chonCheDo(nut.dataset.submode));
@@ -31,26 +38,47 @@ function veChipLuyenTap() {
   veChipCapDo(document.getElementById("lt-cap-do"), ltTrangThai.capDo,
     demTheo(KHO.tuVung, "capDo"), capDo => {
       ltTrangThai.capDo = capDo;
+      ltTrangThai.bai = "";
       luuCaiDat("lt-cap-do", capDo);
       veChipLuyenTap();
-      vietDaXong = 0;
-      document.getElementById("progress-count").innerText = 0;
-      document.getElementById("progress-fill").style.width = "0%";
-      tuTiepTheo();
-      if (ltTrangThai.daKhoiTaoQuiz) { quizDiem = 0; quizTong = 0; capNhatDiem(); taiCauHoi(); }
+      doiPhamViLuyenTap();
     });
+
+  // chọn bài: chỉ hiện khi đã chọn 1 cấp độ có đánh số bài
+  const chonBai = document.getElementById("lt-bai");
+  const dsBai = [...new Set(KHO.tuVung
+    .filter(t => t.capDo === ltTrangThai.capDo && t.bai).map(t => t.bai))].sort((a, b) => a - b);
+  chonBai.hidden = ltTrangThai.capDo === "tat-ca" || !dsBai.length;
+  chonBai.innerHTML = `<option value="">Tất cả bài</option>` +
+    dsBai.map(b => `<option value="${b}">Bài ${b}</option>`).join("");
+  chonBai.value = ltTrangThai.bai;
+}
+
+/** Đổi cấp độ / bài: làm mới cả 3 chế độ */
+function doiPhamViLuyenTap() {
+  vietDaXong = 0;
+  document.getElementById("progress-count").innerText = 0;
+  document.getElementById("progress-fill").style.width = "0%";
+  if (daKhoiTaoViet) tuTiepTheo();
+  if (ltTrangThai.daKhoiTaoQuiz) { quizDiem = 0; quizTong = 0; capNhatDiem(); taiCauHoi(); }
+  if (ngheTrangThai.daKhoiTao) { datLaiDiemNghe(); taiCauNghe(); }
 }
 
 function chonCheDo(cheDo) {
   ltTrangThai.cheDo = cheDo;
   document.getElementById("write-mode").hidden = cheDo !== "write";
   document.getElementById("quiz-mode").hidden = cheDo !== "quiz";
+  document.getElementById("listen-mode").hidden = cheDo !== "listen";
+  luuCaiDat("lt-che-do", cheDo);
   document.querySelectorAll("#sub-mode-switch .mode-btn").forEach(n =>
     n.classList.toggle("sub-active", n.dataset.submode === cheDo));
   if (cheDo === "quiz" && !ltTrangThai.daKhoiTaoQuiz) {
     ltTrangThai.daKhoiTaoQuiz = true;
     taiCauHoi();
   }
+  if (cheDo === "write") batDauViet();
+  if (cheDo === "listen") khoiTaoNghe();
+  if (cheDo !== "listen" && "speechSynthesis" in window) speechSynthesis.cancel();
 }
 
 /* ---------- Viết chữ ---------- */
@@ -149,7 +177,10 @@ function dungGoiY() {
 
 function tuTiepTheo() {
   const ds = nguonViet();
-  if (!ds.length) return;
+  if (!ds.length) {
+    document.getElementById("canvas-wrapper").innerHTML = `<div class="empty">Không có từ nào để luyện viết trong phạm vi này.</div>`;
+    return;
+  }
   let moi;
   do { moi = ds[Math.floor(Math.random() * ds.length)]; }
   while (ds.length > 1 && tuDangViet && moi.id === tuDangViet.id);
@@ -167,7 +198,10 @@ function capNhatDiem() {
 
 function taiCauHoi() {
   const ds = nguonLuyenTap();
-  if (ds.length < 4) return;
+  if (ds.length < 4) {
+    document.getElementById("quiz-options").innerHTML = `<div class="empty">Bài này có ít hơn 4 từ, hãy chọn phạm vi rộng hơn.</div>`;
+    return;
+  }
   quizDaTraLoi = false;
   document.getElementById("quiz-message").innerText = "";
 
