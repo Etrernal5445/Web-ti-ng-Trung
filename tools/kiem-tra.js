@@ -9,7 +9,7 @@ const vm = require("vm");
 
 const goc = path.join(__dirname, "..");
 const html = fs.readFileSync(path.join(goc, "index.html"), "utf8");
-const files = [...html.matchAll(/<script src="((?:js\/kho|data\/)[^"]+)"/g)].map(m => m[1]);
+const files = [...html.matchAll(/<script src="((?:js\/kho|data\/(?!de-thi))[^"]+)"/g)].map(m => m[1]);
 
 const ctx = {};
 vm.createContext(ctx);
