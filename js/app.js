@@ -1,6 +1,6 @@
-/* ===== Điều hướng giữa 3 chế độ bằng địa chỉ #tu-vung, #ngu-phap, #luyen-tap ===== */
+/* ===== Điều hướng giữa các chế độ bằng địa chỉ #tu-vung, #ngu-phap, #luyen-tap, #de-thi ===== */
 
-const CAC_CHE_DO = ["tu-vung", "ngu-phap", "luyen-tap"];
+const CAC_CHE_DO = ["tu-vung", "ngu-phap", "luyen-tap", "de-thi"];
 
 function chuyenCheDo() {
   let cheDo = location.hash.replace("#", "");
@@ -13,6 +13,7 @@ function chuyenCheDo() {
     a.classList.toggle("active", a.dataset.mode === cheDo));
 
   if (cheDo === "luyen-tap") chonCheDo(ltTrangThai.cheDo);
+  if (cheDo !== "de-thi" && dt.de) thoatDe();
   luuCaiDat("che-do", cheDo);
 }
 
@@ -23,11 +24,12 @@ function chuyenCheDo() {
   const tongTu = KHO.tuVung.length;
   const tongNP = KHO.nguPhap.reduce((s, b) => s + b.diem.length, 0);
   document.getElementById("app-subtitle").textContent =
-    `${tongTu} từ vựng · ${tongNP} điểm ngữ pháp · luyện viết & trắc nghiệm`;
+    `${tongTu} từ vựng · ${tongNP} điểm ngữ pháp · ${KHO.deThi.length} đề thi HSK2`;
 
   khoiTaoTuVung();
   khoiTaoChiTiet();
   khoiTaoNguPhap();
+  khoiTaoDeThi();
   khoiTaoLuyenTap();
 
   if (!location.hash) {

@@ -27,6 +27,7 @@
         <a class="mode-btn" data-mode="tu-vung" href="#tu-vung">📚 Từ vựng</a>
         <a class="mode-btn" data-mode="ngu-phap" href="#ngu-phap">📖 Ngữ pháp</a>
         <a class="mode-btn" data-mode="luyen-tap" href="#luyen-tap">🎯 Luyện tập</a>
+        <a class="mode-btn" data-mode="de-thi" href="#de-thi">📝 Luyện đề</a>
     </nav>
 
     <!-- ===== KHO TỪ VỰNG ===== -->
@@ -138,6 +139,56 @@
         </div>
     </main>
 
+    <!-- ===== LUYỆN ĐỀ ===== -->
+    <main id="view-de-thi" class="view" hidden>
+        <div id="dt-man-ds" class="dt-man-ds">
+            <div class="dt-gioi-thieu">
+                <h2>Luyện đề HSK2</h2>
+                <p>Đề thi thật kèm file nghe. Mỗi đề 60 câu: Nghe 35 câu, Đọc 25 câu, tổng 200 điểm, đạt từ 120.
+                   Chọn <b>Thi thử</b> để tính giờ như thi thật, hoặc <b>Luyện tập</b> để xem đáp án và lời thoại ngay sau mỗi câu.</p>
+            </div>
+            <div class="dt-ds" id="dt-ds"></div>
+        </div>
+
+        <div id="dt-man-bai" class="dt-man-bai" hidden>
+            <div class="dt-thanh-tren">
+                <button type="button" class="icon-btn" id="dt-thoat" title="Thoát (bài làm được lưu)">‹</button>
+                <div class="dt-tieu-de"><b id="dt-ten"></b><span id="dt-che-do"></span></div>
+                <span class="dt-gio" id="dt-gio" hidden></span>
+                <button type="button" class="dt-nut-py" id="dt-nut-py" title="Ẩn/hiện pinyin">拼音</button>
+                <button type="button" class="dt-nop" id="dt-nop">Nộp bài</button>
+            </div>
+            <nav class="dt-phan" id="dt-phan"></nav>
+            <div class="dt-trinh-phat" id="dt-trinh-phat">
+                <audio id="dt-audio" preload="metadata"></audio>
+                <button type="button" class="dt-play" id="dt-play" aria-label="Phát / tạm dừng">▶</button>
+                <div class="dt-tp-giua">
+                    <input type="range" id="dt-tua" min="0" max="0" step="0.1" value="0" aria-label="Tua file nghe">
+                    <div class="dt-tp-dong">
+                        <span id="dt-tg">00:00 / 00:00</span>
+                        <span id="dt-cau-nghe" class="dt-cau-nghe"></span>
+                        <label class="dt-tu-theo" title="Tự chuyển tới câu đang được đọc"><input type="checkbox" id="dt-tu-theo"> Tự cuộn</label>
+                    </div>
+                </div>
+                <div class="dt-tp-phai">
+                    <button type="button" class="dt-mini" id="dt-lui" aria-label="Lùi 5 giây">↺5</button>
+                    <button type="button" class="dt-mini" id="dt-toc-do" aria-label="Tốc độ">1×</button>
+                </div>
+            </div>
+            <div id="dt-noi-dung" class="dt-noi-dung"></div>
+            <div class="dt-thanh-duoi">
+                <button type="button" class="dt-dieu-huong" id="dt-truoc">‹ Trước</button>
+                <button type="button" class="dt-mo-bang" id="dt-mo-bang"></button>
+                <button type="button" class="dt-dieu-huong chinh" id="dt-sau">Tiếp ›</button>
+            </div>
+        </div>
+
+        <div id="dt-ket-qua" class="dt-ket-qua" hidden></div>
+
+        <div class="dt-phu" id="dt-hop" hidden><div class="dt-hop" id="dt-hop-noi-dung"></div></div>
+        <div class="dt-phu dt-phu-duoi" id="dt-bang" hidden><div class="dt-bang" id="dt-bang-noi-dung"></div></div>
+    </main>
+
     <!-- ===== CỬA SỔ CHI TIẾT TỪ ===== -->
     <div class="modal-backdrop" id="chi-tiet" hidden>
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="ct-hanzi">
@@ -174,6 +225,21 @@
     <script src="js/ngu-phap.js"></script>
     <script src="js/luyen-tap.js"></script>
     <script src="js/luyen-nghe.js"></script>
+    <script src="js/de-thi.js"></script>
+    <!-- Đề thi: thêm đề mới thì thêm 1 dòng ở đây -->
+    <!--DE-THI-->
+    <script src="data/de-thi/hsk2/de-01.js"></script>
+    <script src="data/de-thi/hsk2/de-02.js"></script>
+    <script src="data/de-thi/hsk2/de-03.js"></script>
+    <script src="data/de-thi/hsk2/de-04.js"></script>
+    <script src="data/de-thi/hsk2/de-05.js"></script>
+    <script src="data/de-thi/hsk2/de-06.js"></script>
+    <script src="data/de-thi/hsk2/de-07.js"></script>
+    <script src="data/de-thi/hsk2/de-08.js"></script>
+    <script src="data/de-thi/hsk2/de-09.js"></script>
+    <script src="data/de-thi/hsk2/de-10.js"></script>
+    <script src="data/de-thi/hsk2/de-11.js"></script>
+    <script src="data/de-thi/hsk2/de-12.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
