@@ -1249,3 +1249,30 @@ body.dang-lam-de .app-header, body.dang-lam-de #top-mode-switch, body.dang-lam-d
 .dt-trinh-phat { top: calc(var(--dt-h1, 56px) + var(--dt-h2, 50px)); }
 .dt-nhom-dinh { top: calc(var(--dt-h1, 56px) + var(--dt-h2, 50px) + 4px); }
 .dt-cau { scroll-margin-top: calc(var(--dt-h1, 56px) + var(--dt-h2, 50px) + var(--dt-h3, 0px) + 8px); }
+
+/* ===== Sửa lưới tranh trên Safari/WebKit (iPhone): không để ảnh kéo giãn cột,
+   không phụ thuộc aspect-ratio (máy cũ chưa hỗ trợ) ===== */
+.dt-luoi-anh { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (min-width: 700px) { .dt-luoi-anh { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+.dt-anh-lc {
+    display: block; min-width: 0; width: 100%; height: 0; padding: 100% 0 0; aspect-ratio: auto;
+    overflow: hidden;
+}
+.dt-anh-lc img {
+    position: absolute; top: 6px; left: 6px; width: calc(100% - 12px); height: calc(100% - 12px);
+    max-width: none; max-height: none; object-fit: contain;
+}
+.dt-hang-nut.chu-anh { grid-template-columns: repeat(auto-fill, minmax(58px, 1fr)); }
+.dt-hang-nut > * { min-width: 0; }
+.dt-chu-anh {
+    display: block; width: 100%; height: 0; padding: calc(100% - 4px) 0 0; min-height: 0; aspect-ratio: auto; overflow: hidden;
+}
+.dt-chu-anh img {
+    position: absolute; top: 4px; left: 4px; width: calc(100% - 8px); height: calc(100% - 8px);
+    max-width: none; object-fit: contain;
+}
+.dt-chu-anh b { z-index: 1; }
+.dt-anh-cau { width: auto; max-width: 100%; height: auto; }
+.dt-man-bai, .dt-noi-dung, .dt-nhom { min-width: 0; max-width: 100%; }
+.dt-noi-dung { overflow-x: clip; }
+img { max-width: 100%; }
